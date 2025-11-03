@@ -2,7 +2,7 @@ import requests
 import json
 
 base_url = "https://apiv2.nobitex.ir"
-endpoint = "/market/ticker"
+endpoint = "/market/orders/list"
 payload = {
     "order": "-price",       # مرتب‌سازی
     "type": "sell",          # نوع سفارش: sell یا buy
