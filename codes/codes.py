@@ -1,7 +1,19 @@
-import numpy as np
-import talib
+import requests
+import json
 
-close = np.array([101,103,102,104,106,105,107,110], dtype=float)
-sma20 = talib.SMA(close, timeperiod=3)
-rsi14 = talib.RSI(close, timeperiod=3)
-print(sma20, rsi14)
+base_url = "https://apiv2.nobitex.ir"
+endpoint = "/market/ticker"
+payload = {
+    "order": "-price",       # مرتب‌سازی
+    "type": "sell",          # نوع سفارش: sell یا buy
+    "dstCurrency": "usdt"    # مقصد: usdt / irt / ...
+    # در صورت نیاز می‌توانید srcCurrency را نیز اضافه کنید، مثل: "srcCurrency": "btc"
+}
+
+resp = requests.post(base_url + endpoint, json=payload, timeout=15)
+
+print("Status:", resp.status_code)
+print("Body:", resp.text[:400])  # پیام خطا یا راهنمایی
+resp.raise_for_status()
+data = resp.json()
+print(json.dumps(data, ensure_ascii=False, indent=2))
