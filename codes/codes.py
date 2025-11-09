@@ -1,19 +1,23 @@
-import requests
-import json
+# import requests
+# import time
 
-base_url = "https://apiv2.nobitex.ir"
-endpoint = "/market/orders/list"
-payload = {
-    "order": "-price",       # مرتب‌سازی
-    "type": "sell",          # نوع سفارش: sell یا buy
-    "dstCurrency": "usdt"    # مقصد: usdt / irt / ...
-    # در صورت نیاز می‌توانید srcCurrency را نیز اضافه کنید، مثل: "srcCurrency": "btc"
-}
+# def get_btc_price_toman():
+#     url = "https://apiv2.nobitex.ir/v3/orderbook/all"
+#     try:
+#         resp = requests.get(url, timeout=10)
+#         if resp.status_code == 200:
+#             data = resp.json()
+#             price = int(data["BTCIRT"]["lastTradePrice"])
+#             print(f"قیمت لحظه‌ای بیت‌کوین به تومان: {price:,}")
+#         else:
+#             print(f"خطا: {resp.status_code}")
+#     except Exception as e:
+#         print("خطا در دریافت داده:", e)
 
-resp = requests.post(base_url + endpoint, json=payload, timeout=15)
+# while True:
+#     get_btc_price_toman()
+#     time.sleep(10)  # به‌روزرسانی هر ۱۰ ثانیه
 
-print("Status:", resp.status_code)
-print("Body:", resp.text[:400])  # پیام خطا یا راهنمایی
-resp.raise_for_status()
-data = resp.json()
-print(json.dumps(data, ensure_ascii=False, indent=2))
+
+
+
