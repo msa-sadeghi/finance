@@ -155,3 +155,135 @@ def calculate_cci(df: pd.DataFrame, length: int = 20) -> pd.Series:
     cci = (typical_price - typical_price.rolling(window=length).mean()) / (0.015 * mean_deviation)
     return cci
 
+
+
+
+def calculate_fibonacci_retracement(df: pd.DataFrame, period: int = 100):
+    """
+    محاسبه سطوح فیبوناچی بر اساس high و low اخیر
+    
+    Args:
+        df: DataFrame با ستون‌های high و low
+        period: تعداد کندل‌های اخیر برای یافتن high/low
+    
+    Returns:
+        DataFrame با سطوح فیبوناچی
+    """
+    # پیدا کردن بالاترین و پایین‌ترین قیمت در period اخیر
+    recent_high = df['high'].rolling(window=period).max()
+    recent_low = df['low'].rolling(window=period).min()
+    
+    diff = recent_high - recent_low
+    
+    # سطوح فیبوناچی کلاسیک
+    levels = {
+        'Fib_0': recent_high,
+        'Fib_236': recent_high - 0.236 * diff,
+        'Fib_382': recent_high - 0.382 * diff,
+        'Fib_500': recent_high - 0.500 * diff,
+        'Fib_618': recent_high - 0.618 * diff,
+        'Fib_786': recent_high - 0.786 * diff,
+        'Fib_100': recent_low
+    }
+    
+    return pd.DataFrame(levels)
+
+
+def calculate_ichimoku(df: pd.DataFrame, 
+                       tenkan_period: int = 9,
+                       kijun_period: int = 26,
+                       senkou_span_b_period: int = 52,
+                       displacement: int = 26):
+    """
+    محاسبه ابر ایچیموکو
+    
+    Returns:
+        DataFrame با خطوط Tenkan, Kijun, Senkou A, Senkou B, Chikou
+    """
+    # Tenkan-sen (خط تبدیل)
+    tenkan_sen = (df['high'].rolling(window=tenkan_period).max() + 
+                  df['low'].rolling(window=tenkan_period).min()) / 2
+    
+    # Kijun-sen (خط پایه)
+    kijun_sen = (df['high'].rolling(window=kijun_period).max() + 
+                 df['low'].rolling(window=kijun_period).min()) / 2
+    
+    # Senkou Span A (خط پیشرو A)
+    senkou_span_a = ((tenkan_sen + kijun_sen) / 2).shift(displacement)
+    
+    # Senkou Span B (خط پیشرو B)
+    senkou_span_b = ((df['high'].rolling(window=senkou_span_b_period).max() + 
+                      df['low'].rolling(window=senkou_span_b_period).min()) / 2).shift(displacement)
+    
+    # Chikou Span (خط تاخیری)
+    chikou_span = df['close'].shift(-displacement)
+    
+    return pd.DataFrame({
+        'Tenkan': tenkan_sen,
+        'Kijun': kijun_sen,
+        'Senkou_A': senkou_span_a,
+        'Senkou_B': senkou_span_b,
+        'Chikou': chikou_span
+    })
+
+
+def calculate_stochastic_rsi(df: pd.DataFrame, 
+                             rsi_period: int = 14,
+                             stoch_period: int = 14,
+                             k_smooth: int = 3,
+                             d_smooth: int = 3):
+    """
+    محاسبه Stochastic RSI (حساس‌تر از RSI معمولی)
+    
+    Returns:
+        DataFrame با StochRSI_K و StochRSI_D
+    """
+    # محاسبه RSI
+    delta = df['close'].diff()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    
+    avg_gain = gain.rolling(window=rsi_period).mean()
+    avg_loss = loss.rolling(window=rsi_period).mean()
+    
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+    
+    # محاسبه Stochastic RSI
+    rsi_min = rsi.rolling(window=stoch_period).min()
+    rsi_max = rsi.rolling(window=stoch_period).max()
+    
+    stoch_rsi = (rsi - rsi_min) / (rsi_max - rsi_min) * 100
+    
+    # هموارسازی
+    stoch_rsi_k = stoch_rsi.rolling(window=k_smooth).mean()
+    stoch_rsi_d = stoch_rsi_k.rolling(window=d_smooth).mean()
+    
+    return pd.DataFrame({
+        'StochRSI_K': stoch_rsi_k,
+        'StochRSI_D': stoch_rsi_d
+    })
+
+
+def calculate_volatility_bands(df: pd.DataFrame, 
+                               length: int = 20,
+                               atr_multiplier: float = 2.0):
+    """
+    باندهای نوسان بر اساس ATR (جایگزین Bollinger Bands)
+    
+    Returns:
+        DataFrame با Upper, Middle, Lower bands
+    """
+    from indicators import calculate_atr, calculate_sma
+    
+    middle = calculate_sma(df, length)
+    atr = calculate_atr(df, length)
+    
+    upper = middle + (atr * atr_multiplier)
+    lower = middle - (atr * atr_multiplier)
+    
+    return pd.DataFrame({
+        'Vol_Upper': upper,
+        'Vol_Middle': middle,
+        'Vol_Lower': lower
+    })
