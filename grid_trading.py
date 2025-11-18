@@ -1,8 +1,15 @@
+import ccxt
 config ={
     'exchange': 'binance',
     'symbol': 'BTC/USDT',
-    'api_key': 'your_api_key', # جایگزین کنید با API Key خود 'api_secret': 'your_secret', # جایگزین کنید با Secret خود 'grid_size':100, # فاصله بین سطوح شبکه (دلار)
-    'grid_count':10, # تعداد سطوح در هر جهت 'base_order_size':0.01, # حجم هر سفارش 'sleep_time':10, # زمان انتظار بین هرچرخه بررسی سفارشات}
+    'api_key': 'your_api_key', 
+    # جایگزین کنید با API Key خود 'api_secret': 'your_secret', #
+    #  جایگزین کنید با Secret خود 'grid_size':100, #
+    #  فاصله بین سطوح شبکه (دلار)
+    'grid_count':10, 
+    # تعداد سطوح در هر جهت 'base_order_size':0.01, #
+    #  حجم هر سفارش 'sleep_time':10, #
+    #  زمان انتظار بین هرچرخه بررسی سفارشات}
 }
 
 def create_exchange():
